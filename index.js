@@ -1,12 +1,34 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+const bodyParser  = require('body-parser');
+const cookieParser = require('cookie-parser');
+
+const {User} = require('./models/user');
+const config = require('./config/key');
 const psw = '4QUPKIfJaEYFHgyR';
-mongoose.connect('mongodb+srv://ahmedfaraz:4QUPKIfJaEYFHgyR@ecomdb.x9y5n.mongodb.net/<dbname>?retryWrites=true&w=majority', {useNewUrlParser:true})
+mongoose.connect(config.mongoURI, {useNewUrlParser: true, useUnifiedTopology: true})
 .then(() => console.log("DB Connected"))
 .catch(err => console.error(err));
 
-const port = 3000
+
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json())
+app.use(cookieParser());
+
+app.post('/api/users/register', (req,res) => {
+    const user = new User(req.body);
+
+    user.save((err,userData)=> {
+        if(err) return res.json ({success: false, err})
+        return res.status(200).json({
+            success:true
+        })
+    })
+    
+})
+
+const port = 5000
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
